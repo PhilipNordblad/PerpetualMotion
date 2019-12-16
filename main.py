@@ -69,6 +69,8 @@ cyprus.open_spi()
 # ////////////////////////////////////////////////////////////////
 sm = ScreenManager()
 ramp = stepper(port = 0, speed = INIT_RAMP_SPEED)
+cyprus.initialize()
+cyprus.setup_servo(1)
 
 # ////////////////////////////////////////////////////////////////
 # //                       MAIN FUNCTIONS                       //
@@ -89,18 +91,36 @@ class MainScreen(Screen):
     staircaseSpeedText = '0'
     rampSpeed = INIT_RAMP_SPEED
     staircaseSpeed = 40
+    staircase = False
+    staircase_speed = 10000
 
     def __init__(self, **kwargs):
         super(MainScreen, self).__init__(**kwargs)
         self.initialize()
 
+
     def toggleGate(self):
+
+
         print("Open and Close gate here")
 
     def toggleStaircase(self):
+
+        self.staircase = not self.staircase
+
+        if self.staircase:
+            print(self.staircase)
+            cyprus.set_pwm_values(1, period_value = 100000, compare_value = self.staircase_speed, compare_mode = cyprus.LESS_THAN_OR_EQUAL)
+
+        else:
+            print(self.staircase)
+            cyprus.set_pwm_values(1, period_value = 100000, compare_value = 0, compare_mode = cyprus.LESS_THAN_OR_EQUAL)
+
         print("Turn on and off staircase here")
-        
+
     def toggleRamp(self):
+
+
         print("Move ramp up and down here")
         
     def auto(self):
@@ -110,9 +130,19 @@ class MainScreen(Screen):
         print("Set the ramp speed and update slider text")
         
     def setStaircaseSpeed(self, speed):
+
+        self.staircase_speed = 100 * speed
+        self.ids.StaircaseSpeed.text = "Staircase Speed: " + str(self.staircase_speed)
+        if self.staircase:
+            cyprus.set_pwm_values(1,period_value= 1000, compare_value= 100 * speed, compare_mode= cyprus.LESS_THAN_OR_EQUAL)
+
         print("Set the staircase speed and update slider text")
         
     def initialize(self):
+
+        cyprus.setup_servo(1)
+
+
         print("Close gate, stop staircase and home ramp here")
 
     def resetColors(self):
